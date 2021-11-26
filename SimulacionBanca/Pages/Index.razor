@@ -1,0 +1,54 @@
+﻿@page "/"
+@page "/clientes"
+@inject IRepositoryManager Repository
+<h3>Listado de Clientes</h3>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th scope="col">Id</th>
+            <th scope="col">Nombre</th>
+            <th scope="col">Direccion</th>
+            <th scope="col">Telefono</th>
+            <th scope="col">Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (_clientes != null)
+        {
+
+            @foreach (var cliente in _clientes)
+            {
+                <tr>
+                    <td>@cliente.Id</td>
+                    <td>@cliente.Nombre</td>
+                    <td>@cliente.Direccion</td>
+                    <td>@cliente.Telefono</td>
+                    <td>
+                        <button class="btn btn-success"> Ver</button>
+                        <button class="btn btn-success"> Editar</button>
+                        <button class="btn btn-success" @onclick="() =>HandleDelete(cliente.Id)"> Eliminar</button>
+                    </td>
+                </tr>
+             }
+
+        }
+
+    </tbody>
+</table>
+
+@code{      
+    private IEnumerable<Cliente> _clientes;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _clientes = await Repository.Cliente.GetAllClientesAsync(trackChanges:false);
+    }
+
+    private async Task HandleDelete(int clienteId)
+    {
+        var cliente = await Repository.Cliente.GetClienteAsync(clienteId, false);
+        Repository.Cliente.DeleteCliente(cliente);
+        await Repository.SaveAsync();
+    }
+}
